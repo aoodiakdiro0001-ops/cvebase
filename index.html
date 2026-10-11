@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CVEbase | Vulnerability Archive & CVE Tracker</title>
+<meta name="description" content="Searchable CVE archive: fetch and save vulnerabilities, affected libraries, stack-based alerts. Free with $5/mo Pro.">
+<link rel="canonical" href="https://aoodiakdiro0001-ops.github.io/cvebase/">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0a0c14">
+<meta property="og:type" content="website">
+<meta property="og:title" content="CVEbase | CVE Archive & Tracker">
+<meta property="og:description" content="Searchable vulnerability database, affected libraries, stack alerts.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Consolas,monospace}
+:root{--bg:#0a0c14;--panel:#121829;--line:#253053;--grn:#34d399;--red:#f87171;--org:#fb923c;--ylw:#fbbf24;--blu:#60a5fa;--txt:#dde5f2;--mut:#8b98b8}
+body{background:var(--bg);color:var(--txt)}
+header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{font-size:22px;font-weight:900;color:var(--red)}
+.logo small{display:block;font-size:11px;color:var(--mut);font-weight:400}
+.live{font-size:11px;font-weight:800;color:var(--grn);border:1px solid var(--grn);border-radius:12px;padding:3px 10px}
+header select{margin-left:auto;background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:7px 10px;font-size:13px}
+.stats{display:flex;gap:12px;padding:14px 20px 0;flex-wrap:wrap;max-width:1100px;margin:0 auto}
+.stat{flex:1;min-width:130px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.stat b{font-size:22px;color:var(--red);display:block}
+.stat span{font-size:11.5px;color:var(--mut)}
+.tabs{display:flex;gap:6px;padding:14px 16px 0;flex-wrap:wrap;max-width:1100px;margin:0 auto}
+.tabs button{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-bottom:none;padding:10px 16px;border-radius:12px 12px 0 0;cursor:pointer;font-weight:800;font-size:13px}
+.tabs button.on{background:#1a2140;color:var(--red)}
+main{max-width:1100px;margin:0 auto;padding:18px 15px 60px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:0 14px 14px 14px;padding:22px;display:none}
+.panel.on{display:block}
+.panel h2{color:var(--red);margin-bottom:6px;font-size:19px}
+.panel p.sub{color:var(--mut);font-size:13px;margin-bottom:12px;line-height:1.7}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;align-items:center}
+input[type=text],select,textarea{background:#0a0c14;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 13px;font-size:13.5px;outline:none}
+button.go{background:var(--red);color:#1c0505;border:none;padding:10px 22px;border-radius:10px;font-weight:900;cursor:pointer;font-size:14px}
+button.alt{background:transparent;color:var(--blu);border:1px solid var(--blu);padding:9px 16px;border-radius:10px;cursor:pointer;font-size:13px}
+.note{background:#1a2140;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--mut);margin:10px 0;line-height:1.7}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:12px}
+.card{background:#0a0c14;border:1px solid var(--line);border-left:5px solid var(--mut);border-radius:12px;padding:14px;font-size:13px;cursor:pointer}
+.card.crit{border-left-color:var(--red)} .card.high{border-left-color:var(--org)} .card.med{border-left-color:var(--ylw)} .card.low{border-left-color:var(--grn)}
+.card .cid{font-weight:900;color:var(--red);direction:ltr;display:inline-block}
+.badge{font-size:10.5px;font-weight:900;padding:3px 10px;border-radius:10px;margin-left:8px}
+.crit .badge{background:#3f1d1d;color:var(--red)} .high .badge{background:#3d2410;color:var(--org)} .med .badge{background:#3a2c10;color:var(--ylw)} .low .badge{background:#0e2a1d;color:var(--grn)} .na .badge{background:#222a44;color:var(--mut)}
+.card p{margin:8px 0;line-height:1.6}
+.card small{color:var(--mut)}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;z-index:100;align-items:center;justify-content:center;padding:16px}
+#modal.show{display:flex}
+#modalBody{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;width:min(640px,94vw);max-height:86vh;overflow:auto;font-size:13.5px;line-height:1.8}
+#modalBody code{display:block;background:#0a0c14;border-radius:8px;padding:8px;margin:6px 0;font-size:12px;direction:ltr;text-align:left;white-space:pre-wrap}
+#modalBody a{color:var(--blu)}
+.stack{background:#0a0c14;border:1px solid var(--line);border-radius:12px;padding:14px;margin:8px 0;font-size:13px}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:12px}
+.plan{background:#0a0c14;border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center}
+.plan.hot{border-color:var(--red)}
+.plan .amt{font-size:30px;font-weight:900;color:var(--red)}
+.plan ul{list-style:none;font-size:13px;margin:12px 0;line-height:2}
+.plan small{color:var(--mut)}
+.paybox{background:#0a0c14;border:1px solid var(--grn);border-radius:14px;padding:16px;margin-top:12px;font-size:13px}
+.paybox code{direction:ltr;display:block;font-family:monospace;font-size:12px;color:var(--grn);word-break:break-all;margin:4px 0}
+.paybox{background:#0a0c14;border:1px solid var(--grn);border-radius:14px;padding:16px;margin-top:12px;font-size:13px}
+.paybox code{direction:ltr;display:block;font-family:monospace;font-size:12px;color:var(--grn);word-break:break-all;margin:4px 0}
+.adslot{max-width:1100px;margin:12px auto 0;padding:0 15px;text-align:center}
+.adslot .ph{display:block;border:1px dashed var(--line);border-radius:10px;color:var(--mut);font-size:12px;padding:10px}
+footer{text-align:center;color:var(--mut);font-size:12.5px;padding:26px 16px;border-top:1px solid var(--line);line-height:2}
+footer a{color:var(--grn)}
+#toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:12px 25px;border-radius:25px;z-index:200;display:none;font-size:14px;max-width:92vw;text-align:center}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">🗄️ CVEbase<small data-i="tag"></small></div>
+<span class="live">● LIVE</span>
+<select id="langSel" onchange="setLang(this.value)">
+<option value="en" selected>🇬🇧 English</option><option value="tr">🇹🇷 Türkçe</option><option value="ar">🇸🇦 العربية</option>
+</select>
+</header>
+<div class="stats">
+<div class="stat"><b id="stArch">0</b><span data-i="stA"></span></div>
+<div class="stat"><b id="stNvd">—</b><span data-i="stN"></span></div>
+<div class="stat"><b id="stCrit">0</b><span data-i="stC"></span></div>
+<div class="stat"><b>$5</b><span data-i="stP"></span></div>
+</div>
+<div class="tabs" id="tabs"></div>
+<main>
+<section class="panel on" id="p-arch">
+<h2 data-i="aT"></h2><p class="sub" data-i="aS"></p>
+<div class="row">
+<input type="text" id="qId" placeholder="CVE-2024-12345" style="direction:ltr;max-width:180px">
+<button class="go" onclick="fetchId()" data-i="btnFetch"></button>
+<input type="text" id="qV" data-i-ph="venPh" style="max-width:140px">
+<input type="text" id="qP" data-i-ph="proPh" style="max-width:140px">
+<button class="alt" onclick="fetchVendor()" data-i="btnGet"></button>
+<button class="alt" onclick="fetchRecent(true)" data-i="btnRecent"></button>
+</div>
+<div class="row">
+<input type="text" id="qS" data-i-ph="searchPh" style="flex:1;min-width:180px" oninput="renderArchive()">
+<select id="fSev" onchange="renderArchive()"></select>
+<select id="fYear" onchange="renderArchive()"></select>
+<button class="alt" onclick="exportArch('json')">JSON ⬇</button>
+<button class="alt" onclick="document.getElementById('impF').click()" data-i="btnImp"></button>
+<input type="file" id="impF" accept=".json" style="display:none" onchange="importArch(this)">
+</div>
+<div class="row" style="font-size:12px;color:var(--mut)"><span id="archLine"></span></div>
+<div class="grid" id="archGrid"></div>
+</section>
+<section class="panel" id="p-libs">
+<h2 data-i="lT"></h2><p class="sub" data-i="lS"></p>
+<div class="row">
+<select id="ecoSel"><option value="npm">npm</option><option value="PyPI">PyPI</option><option value="Go">Go</option><option value="Maven">Maven</option><option value="crates.io">crates.io</option><option value="RubyGems">RubyGems</option><option value="NuGet">NuGet</option><option value="Packagist">Packagist</option></select>
+<input type="text" id="pkgIn" placeholder="lodash" style="direction:ltr">
+<button class="go" onclick="libLookup()" data-i="btnLook"></button>
+</div>
+<div class="row">
+<button class="alt" onclick="libQuick('npm','lodash')">lodash</button>
+<button class="alt" onclick="libQuick('PyPI','requests')">requests</button>
+<button class="alt" onclick="libQuick('npm','express')">express</button>
+<button class="alt" onclick="libQuick('Maven','org.apache.logging.log4j:log4j-core')">log4j</button>
+</div>
+<div class="grid" id="libGrid"></div>
+</section>
+<section class="panel" id="p-alerts">
+<h2 data-i="alT"></h2><p class="sub" data-i="alS"></p>
+<div class="row"><button class="go" onclick="enableNotif()" data-i="btnNotif"></button><button class="alt" onclick="testNotif()" data-i="btnTest"></button></div>
+<div class="row"><input type="text" id="stkName" data-i-ph="stkNamePh" style="max-width:170px"><input type="text" id="stkKw" data-i-ph="stkKwPh" style="flex:1;min-width:180px;direction:ltr"><button class="go" onclick="stackAdd()" data-i="btnAddStack"></button></div>
+<div id="stkList"></div>
+<div class="note" data-i="pollNote"></div>
+</section>
+<section class="panel" id="p-pro">
+<h2 data-i="pT"></h2><p class="sub" data-i="pS"></p>
+<div class="plans">
+<div class="plan"><b data-i="freeN"></b><div class="amt">$0</div><ul><li data-i="fF1"></li><li data-i="fF2"></li><li data-i="fF3"></li></ul></div>
+<div class="plan hot"><b data-i="proN"></b><div class="amt">$5<small>/mo</small></div><ul><li data-i="fP1"></li><li data-i="fP2"></li><li data-i="fP3"></li></ul><button class="go" onclick="proJoin()" data-i="btnJoin"></button><br><small data-i="proNote"></small></div>
+</div>
+<div class="paybox" id="payBox"></div>
+<div class="paybox" id="payBox"></div>
+</section>
+</main>
+<div class="adslot" id="adFoot"><span class="ph" data-i="adHere" style="display:block;border:1px dashed var(--line);border-radius:10px;color:var(--mut);font-size:12px;padding:10px"></span></div>
+<div id="modal"><div id="modalBody"></div></div>
+<footer><span data-i="foot"></span><br>📧 <a href="mailto:baranavisat@gmail.com">baranavisat@gmail.com</a> · 📞 <a href="tel:+905313263722" dir="ltr">+90 531 326 37 22</a> · <a href="https://wa.me/905313263722" target="_blank" rel="noopener">WhatsApp</a><br><a href="README.md" target="_blank">README</a> · MIT · <span data-i="srcNote"></span></footer>
+<div id="toast"></div>
+<script>
+const CONFIG={ads:{client:'',slot:'',carbonServe:'',carbonPlacement:''},pollMin:5,
+pay:{btc:'bc1q8dhtdrndxsl70e97t8grydfe6pjue37zrhzf6c',usdt:'TLWdTjqqogkXNEXGiPWsGdjFP6ioycxeWW',name:'Baran Avisat',try:'TR10 0001 0090 1008 4013 0050 01',usd:'TR80 0001 0090 1008 4013 0050 02'}};
+const CIRCL='https://cve.circl.lu/api', OSV='https://api.osv.dev/v1';
+const T={
+en:{tag:'Searchable CVE archive + stack alerts',tabA:'🗄️ Archive',tabL:'📦 Libraries',tabAl:'🔔 Alerts',tabP:'💎 Pro $5',
+stA:'archived CVEs',stN:'CVEs tracked upstream',stC:'critical in archive',stP:'Pro / month',
+aT:'🗄️ CVE Archive — fetch, save, search',aS:'Pull CVEs from official public feeds into your local archive, then search offline with filters. Everything persists in your browser.',
+btnFetch:'Fetch ID',venPh:'vendor',proPh:'product',btnGet:'Pull vendor',btnRecent:'↻ Recent 30',
+searchPh:'🔍 search archive (id / text / vendor)...',fSevAll:'All severities',fYearAll:'All years',btnImp:'Import JSON',
+lT:'📦 Affected Libraries',lS:'Query the public OSV database by ecosystem + package to see real recorded vulnerabilities.',
+btnLook:'Lookup',alT:'🔔 Stack Alerts',alS:'Define technology stacks (comma keywords). New archived CVEs matching a stack trigger a browser alert.',
+btnNotif:'Enable alerts',btnTest:'Test alert',stkNamePh:'stack name (e.g. LAMP)',stkKwPh:'keywords: nginx, openssl, wordpress',btnAddStack:'Add stack',pollNote:'Archive auto-pulls recent CVEs every 5 minutes while open.',
+pT:'💎 Pro Alerts — $5/mo',pS:'Free: full archive + browser alerts. Pro: Telegram/Discord instant alerts for your stacks (needs a small backend worker).',
+freeN:'Archive (Free)',proN:'Sentinel (Pro)',fF1:'✓ Full archive + search',fF2:'✓ Browser stack alerts',fF3:'✓ Export / import',fP1:'✓ Telegram instant alerts',fP2:'✓ Discord webhooks',fP3:'✓ Priority API',btnJoin:'Join Pro — $5/mo',proNote:'Interest saved locally; backend worker required for delivery.',payT2:'💳 Pay $5/mo',
+adHere:'Security & cloud ads here',foot:'CVEbase — free archive. Verify on NVD/MITRE. Not financial advice.',srcNote:'Sources: CIRCL · NVD · OSV',
+copied:'Copied ✅',copyB:'Copy',saved:'Saved to archive ✅',dup:'Already archived',needId:'Enter a valid CVE-ID ⚠️',needPkg:'Package name required ⚠️',nodata:'Feed unreachable — retry ⚠️',added:'Stack added ✅',needKw:'Name + keywords required ⚠️',permOn:'Alerts ON ✅',permOff:'Permission denied ⚠️',testT:'CVEbase test ✅',testB:'Stack alerts work.',joined:'Interest saved ✅',exp:'Exported ✅',newHit:'new CVE(s) hit your stacks',payT:'💳 Pay $5/mo',items:'items',closeB:'Close',pubB:'Published',modB:'Modified',refB:'References',affB:'Affected',cweB:'CWE'},
+tr:{tag:'Aranabilir CVE arşivi + stack alarmları',tabA:'🗄️ Arşiv',tabL:'📦 Kütüphaneler',tabAl:'🔔 Alarmlar',tabP:'💎 Pro $5',
+stA:'arşivdeki CVE',stN:'yukarıda izlenen CVE',stC:'kritik',stP:'Pro / ay',
+aT:'🗄️ CVE Arşivi — çek, sakla, ara',aS:'Resmi açık akışlardan CVE\u2019leri yerel arşivinize çekin, sonra filtrelerle çevrimdışı arayın. Her şey tarayıcıda saklanır.',
+btnFetch:'ID Çek',venPh:'üretici',proPh:'ürün',btnGet:'Üreticiyi Çek',btnRecent:'↻ Son 30',
+searchPh:'🔍 arşivde ara (id / metin)...',fSevAll:'Tüm şiddetler',fYearAll:'Tüm yıllar',btnImp:'JSON İçe Aktar',
+lT:'📦 Etkilenen Kütüphaneler',lS:'Ekosistem + paket adıyla açık OSV veritabanını sorgulayın.',
+btnLook:'Sorgula',alT:'🔔 Stack Alarmları',alS:'Teknoloji yığınları tanımlayın (virgüllü anahtar kelimeler). Eşleşen yeni CVE\u2019ler alarm verir.',
+btnNotif:'Alarmları aç',btnTest:'Test alarmı',stkNamePh:'yığın adı (örn. LAMP)',stkKwPh:'anahtarlar: nginx, openssl, wordpress',btnAddStack:'Yığın ekle',pollNote:'Arşiv açıkken her 5 dakikada son CVE\u2019leri çeker.',
+pT:'💎 Pro Alarmlar — $5/ay',pS:'Ücretsiz: tam arşiv + tarayıcı alarmı. Pro: stack\u2019lerinize Telegram/Discord anlık alarm (küçük backend gerekir).',
+freeN:'Arşiv (Ücretsiz)',proN:'Sentinel (Pro)',fF1:'✓ Tam arşiv + arama',fF2:'✓ Tarayıcı alarmları',fF3:'✓ Dışa/içe aktarım',fP1:'✓ Telegram anlık alarm',fP2:'✓ Discord webhook',fP3:'✓ Öncelikli API',btnJoin:'Pro\u2019ya Katıl — $5/ay',proNote:'İlgi yerelde kaydedilir; iletim için backend gerekir.',payT2:'💳 $5/ay öde',
+adHere:'Güvenlik & bulut reklamları burada',foot:'CVEbase — ücretsiz arşiv. NVD/MITRE\u2019de doğrulayın.',srcNote:'Kaynaklar: CIRCL · NVD · OSV',
+copied:'Kopyalandı ✅',copyB:'Kopyala',saved:'Arşive kaydedildi ✅',dup:'Zaten arşivde',needId:'Geçerli CVE-ID yazın ⚠️',needPkg:'Paket adı gerekli ⚠️',nodata:'Akışa ulaşılamadı ⚠️',added:'Yığın eklendi ✅',needKw:'Ad + anahtar gerekli ⚠️',permOn:'Alarm açık ✅',permOff:'Reddedildi ⚠️',testT:'Test ✅',testB:'Alarmlar çalışıyor.',joined:'Kaydedildi ✅',exp:'Dışa aktarıldı ✅',newHit:'yeni CVE stack\u2019lerinize uydu',payT:'💳 $5/ay öde',items:'kayıt',closeB:'Kapat',pubB:'Yayın',modB:'Güncelleme',refB:'Referanslar',affB:'Etkilenenler',cweB:'CWE'},
+ar:{tag:'أرشيف CVE قابل للبحث + تنبيهات',tabA:'🗄️ الأرشيف',tabL:'📦 المكتبات',tabAl:'🔔 التنبيهات',tabP:'💎 Pro',
+stA:'ثغرات مؤرشفة',stN:'ثغرات متتبعة',stC:'حرجة',stP:'Pro / شهر',
+aT:'🗄️ أرشيف CVE — اسحب واحفظ وابحث',aS:'اسحب الثغرات من المصادر الرسمية إلى أرشيفك المحلي ثم ابحث دون إنترنت. كل شيء في متصفحك.',
+btnFetch:'اسحب ID',venPh:'المنتج',proPh:'المنتج',btnGet:'اسحب المنتج',btnRecent:'↻ الأحدث',
+searchPh:'🔍 ابحث في الأرشيف...',fSevAll:'كل الخطورة',fYearAll:'كل السنوات',btnImp:'استيراد JSON',
+lT:'📦 المكتبات المتأثرة',lS:'استعلم قاعدة OSV العامة بالنظام + الحزمة لرؤية الثغرات المسجلة.',
+btnLook:'استعلم',alT:'🔔 تنبيهات الحزم',alS:'عرّف حزم تقنية (كلمات بفاصلة). الثغرات الجديدة المطابقة تنبهك.',
+btnNotif:'فعّل التنبيهات',btnTest:'تنبيه تجريبي',stkNamePh:'اسم الحزمة',stkKwPh:'كلمات: nginx, openssl',btnAddStack:'أضف حزمة',pollNote:'سحب تلقائي كل 5 دقائق والصفحة مفتوحة.',
+pT:'💎 تنبيهات Pro — $5/شهر',pS:'مجاناً: الأرشيف + تنبيه المتصفح. Pro: تيليغرام/ديسكورد فوري (يحتاج backend).',
+freeN:'الأرشيف (مجاناً)',proN:'الحارس (Pro)',fF1:'✓ الأرشيف الكامل',fF2:'✓ تنبيهات المتصفح',fF3:'✓ تصدير/استيراد',fP1:'✓ تيليغرام فوري',fP2:'✓ ديسكورد',fP3:'✓ أولوية API',btnJoin:'اشترك Pro — $5/شهر',proNote:'يُحفظ الاهتمام محلياً؛ التوصيل يحتاج backend.',payT2:'💳 ادفع $5/شهر',
+adHere:'إعلانات الأمن والسحابة هنا',foot:'CVEbase — أرشيف مجاني. تحقق من NVD/MITRE.',srcNote:'المصادر: CIRCL · NVD · OSV',
+copied:'تم ✅',copyB:'نسخ',saved:'حُفظ ✅',dup:'مؤرشف مسبقاً ⚠️',needId:'اكتب CVE-ID صالحاً ⚠️',needPkg:'اسم الحزمة مطلوب ⚠️',nodata:'تعذر الوصول ⚠️',added:'أُضيفت الحزمة ✅',needKw:'الاسم + الكلمات ⚠️',permOn:'مفعّل ✅',permOff:'مرفوض ⚠️',testT:'تجربة ✅',testB:'يعمل.',joined:'حُفظ ✅',exp:'صُدّر ✅',newHit:'ثغرات تطابق حزمك',payT:'💳 ادفع $5/شهر',items:'عنصر',closeB:'إغلاق',pubB:'النشر',modB:'التحديث',refB:'المراجع',affB:'المتأثرون',cweB:'CWE'}};
+let lang='en';
+const t=k=>(T[lang]&&T[lang][k])||T.en[k]||k;
+function setLang(v){lang=v;document.documentElement.lang=v;document.documentElement.dir=(v==='ar')?'rtl':'ltr';document.getElementById('langSel').value=v;
+document.querySelectorAll('[data-i]').forEach(e=>{e.textContent=t(e.dataset.i);});
+document.querySelectorAll('[data-i-ph]').forEach(e=>{e.placeholder=t(e.dataset.iPh);});
+buildTabs();buildFilters();renderArchive();renderStacks();renderPay();}
+const TABS=[['arch','tabA'],['libs','tabL'],['alerts','tabAl'],['pro','tabP']];
+function buildTabs(){document.getElementById('tabs').innerHTML=TABS.map(x=>`<button id="tab-${x[0]}" onclick="tab('${x[0]}')">${t(x[1])}</button>`).join('');document.getElementById('tab-arch').classList.add('on');}
+function tab(w){TABS.forEach(x=>{const b=document.getElementById('tab-'+x[0]);if(b)b.classList.toggle('on',w===x[0]);document.getElementById('p-'+x[0]).classList.toggle('on',w===x[0]);});}
+function toast(m){let d=document.getElementById('toast');d.textContent=m;d.style.display='block';clearTimeout(d._h);d._h=setTimeout(()=>d.style.display='none',2200);}
+function sGet(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}}
+function sSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function cvssOf(c){const v=parseFloat(c.cvss);return isNaN(v)?null:v;}
+function sevOf(v){if(v==null)return 'na';if(v>=9)return 'crit';if(v>=7)return 'high';if(v>=4)return 'med';return 'low';}
+function norm1(c){return {id:c.id||'',summary:c.summary||c.Description||'',Published:c.Published||c.published||'',Modified:c.Modified||c.modified||'',cvss:(c.cvss!=null?c.cvss:null),refs:c.references||c.References||[],aff:c.vulnerable_configuration||c.vulnerable_product||[],cwe:c.cwe||''};}
+function yrOf(c){const m=String(c.Published||'').match(/(\d{4})/);if(m)return m[1];const m2=String(c.id||'').match(/CVE-(\d{4})-/);return m2?m2[1]:'?';}
+let archive=sGet('cb_arch',{});
+function archList(){return Object.keys(archive).map(k=>archive[k]);}
+function saveArch(){const ks=Object.keys(archive);while(ks.length>2000){delete archive[ks.shift()];}sSet('cb_arch',archive);}
+function mergeList(list){let n=0;list.forEach(c=>{c=norm1(c);if(c.id&&!archive[c.id]){archive[c.id]=c;n++;}});if(n){saveArch();updateStats();}return n;}
+function updateStats(){const all=archList();
+document.getElementById('stArch').textContent=all.length;
+document.getElementById('stCrit').textContent=all.filter(c=>sevOf(cvssOf(c))==='crit').length;}
+async function jget(u,opt){const r=await fetch(u,opt);if(!r.ok)throw new Error('http '+r.status);return r.json();}
+async function fetchId(){
+const id=document.getElementById('qId').value.trim().toUpperCase();
+if(!/^CVE-\d{4}-\d+$/.test(id)){toast(t('needId'));return;}
+try{const c=await jget(CIRCL+'/cve/'+encodeURIComponent(id));const n=mergeList([c]);renderArchive();toast(n?t('saved'):t('dup'));}catch(e){toast(t('nodata'));}
+}
+async function fetchVendor(){
+const v=document.getElementById('qV').value.trim(),p=document.getElementById('qP').value.trim();
+if(!v){toast(t('needId'));return;}
+try{const list=await jget(CIRCL+'/last/'+encodeURIComponent(v)+(p?'/'+encodeURIComponent(p):''));const n=mergeList(Array.isArray(list)?list:[]);renderArchive();toast(n?n+' ✓':t('nodata'));}catch(e){toast(t('nodata'));}
+}
+async function fetchRecent(silent){
+try{const list=await jget(CIRCL+'/last');if(!Array.isArray(list))throw 0;
+const before=new Set(Object.keys(archive));
+const n=mergeList(list);renderArchive();
+const fresh=list.filter(c=>c.id&&!before.has(c.id));
+if(!silent||fresh.length){const hits=fresh.filter(c=>stackMatch(c).length);if(hits.length)notify('CVEbase: '+hits.length+' '+t('newHit'),hits.slice(0,3).map(c=>c.id).join(', '));}
+}catch(e){if(!silent)toast(t('nodata'));}
+}
+function renderArchive(){
+const q=document.getElementById('qS').value.trim().toLowerCase();
+const fs=document.getElementById('fSev').value,fy=document.getElementById('fYear').value;
+let list=archList();
+list=list.filter(c=>(!fs||sevOf(cvssOf(c))===fs)&&(!fy||yrOf(c)===fy)&&(!q||((c.id+' '+(c.summary||'')).toLowerCase().includes(q))));
+list.sort((a,b)=>String(b.Published||'').localeCompare(String(a.Published||'')));
+document.getElementById('archGrid').innerHTML=list.slice(0,120).map(c=>{const v=cvssOf(c),s=sevOf(v);
+return `<div class="card ${s}" onclick="showDetail('${c.id}')"><span class="cid">${esc(c.id)}</span><span class="badge">${v==null?'n/a':v.toFixed(1)} · ${yrOf(c)}</span><p>${esc((c.summary||'').slice(0,200))}</p><small>📅 ${esc(String(c.Published||'').slice(0,10))}</small></div>`;}).join('');
+document.getElementById('archLine').textContent=list.length+' '+t('items');
+updateStats();
+}
+function buildFilters(){
+const sevs=['crit','high','med','low','na'];
+document.getElementById('fSev').innerHTML='<option value="">'+t('fSevAll')+'</option>'+sevs.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('');
+const yrs={};archList().forEach(c=>{yrs[yrOf(c)]=1;});
+const cur=document.getElementById('fYear').value;
+document.getElementById('fYear').innerHTML='<option value="">'+t('fYearAll')+'</option>'+Object.keys(yrs).sort().reverse().map(y=>`<option${y===cur?' selected':''}>${y}</option>`).join('');
+}
+function showDetail(id){
+const c=archive[id];if(!c)return;const v=cvssOf(c);
+document.getElementById('modalBody').innerHTML=`<h3 style="color:var(--red)" dir="ltr">${esc(c.id)}</h3><p><b>CVSS:</b> ${v==null?'n/a':v.toFixed(1)} · <b>CWE:</b> ${esc(c.cwe||'n/a')}</p><p>${esc(c.summary||'')}</p><p><b>${t('pubB')}:</b> ${esc(c.Published||'—')} · <b>${t('modB')}:</b> ${esc(c.Modified||'—')}</p>${c.aff&&c.aff.length?`<b>${t('affB')}:</b><code>${c.aff.slice(0,8).map(esc).join('\n')}</code>`:''}<b>${t('refB')}:</b><code>${(c.refs||[]).slice(0,8).map(r=>typeof r==='string'?r:(r.url||r)).map(esc).join('\n')||'—'}</code><div class="row"><a target="_blank" rel="noopener" style="color:var(--blu)" href="https://nvd.nist.gov/vuln/detail/${esc(c.id)}">NVD ↗</a><a target="_blank" rel="noopener" style="color:var(--blu)" href="https://www.exploit-db.com/search?q=${encodeURIComponent(c.id)}">Exploit-DB ↗</a><button class="alt" onclick="closeModal()">${t('closeB')}</button></div>`;
+document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+async function libLookup(){const e=document.getElementById('ecoSel').value,n=document.getElementById('pkgIn').value.trim();libQuick(e,n);}
+async function libQuick(e,n){
+if(!n){toast(t('needPkg'));return;}
+document.getElementById('libGrid').innerHTML='<p style="color:var(--mut)">…</p>';
+try{
+const j=await jget(OSV+'/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({package:{name:n,ecosystem:e}})});
+const vs=(j.vulns||[]).slice(0,20);
+mergeList(vs.map(v=>({id:v.id,summary:v.summary||v.details||'',Published:v.published||'',Modified:v.modified||'',cvss:(v.severity||[]).map(s=>s.score).find(s=>!isNaN(parseFloat(s)))||null,references:(v.references||[]).map(r=>r.url||r)})));
+document.getElementById('libGrid').innerHTML=vs.length?vs.map(v=>{const sc=(v.severity||[]).map(s=>parseFloat(s.score)).find(x=>!isNaN(x));const s=sevOf(sc==null?null:sc);
+return `<div class="card ${s}" onclick="showDetail('${v.id}')"><span class="cid">${esc(v.id)}</span><span class="badge">${sc==null?'n/a':sc}</span><p>${esc((v.summary||v.details||'').slice(0,200))}</p></div>`;}).join(''):`<p style="color:var(--grn)">0 — ${esc(n)} clean ✔</p>`;
+renderArchive();
+}catch(err){document.getElementById('libGrid').innerHTML='<p style="color:var(--mut)">'+t('nodata')+'</p>';}
+}
+function stacks(){return sGet('cb_stacks',[]);} function setStacks(s){sSet('cb_stacks',s);}
+function stackAdd(){const n=document.getElementById('stkName').value.trim(),k=document.getElementById('stkKw').value.trim();
+if(n.length<2||k.length<3){toast(t('needKw'));return;}
+const s=stacks();s.push({n,k:k.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean)});setStacks(s);renderStacks();toast(t('added'));}
+function stackDel(i){const s=stacks();s.splice(i,1);setStacks(s);renderStacks();}
+function stackMatch(c){const s=((c.id||'')+' '+(c.summary||'')).toLowerCase();return stacks().filter(st=>st.k.some(k=>k&&s.includes(k)));}
+function renderStacks(){const s=stacks();document.getElementById('stkList').innerHTML=s.map((x,i)=>`<div class="stack"><b>${esc(x.n)}</b> <small style="color:var(--mut)">${esc(x.k.join(', '))}</small><button onclick="stackDel(${i})" style="float:right;background:none;border:none;cursor:pointer">❌</button></div>`).join('');}
+function notify(ti,bo){try{if('Notification' in window&&Notification.permission==='granted')new Notification(ti,{body:String(bo).slice(0,140)});}catch(e){}}
+function enableNotif(){try{if(!('Notification' in window)){toast(t('permOff'));return;}Notification.requestPermission().then(p=>toast(p==='granted'?t('permOn'):t('permOff')));}catch(e){toast(t('permOff'));}}
+function testNotif(){notify(t('testT'),t('testB'));}
+function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();}
+function exportArch(){dl('cvebase-archive.json',JSON.stringify(archList(),null,1),'application/json');toast(t('exp'));}
+function importArch(el){const f=el.files&&el.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const n=mergeList(Array.isArray(j)?j:[]);buildFilters();renderArchive();toast(n?n+' ✓':t('dup'));}catch(e){toast(t('nodata'));}};r.readAsText(f);}
+function proJoin(){try{const L=sGet('cb_pro',[]);L.unshift({time:new Date().toLocaleString()});sSet('cb_pro',L);}catch(e){}toast(t('joined'));}
+function copyTxt(x){try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(x);}catch(e){}toast(t('copied'));}
+function renderPay(){const el=document.getElementById('payBox');if(!el)return;const P=CONFIG.pay;
+const row=(l,v)=>`<div style="margin:6px 0"><b>${l}:</b> <code style="direction:ltr">${v}</code> <button class="alt sm" style="padding:4px 12px;font-size:12px" onclick="copyTxt('${v.replace(/ /g,'')}')">${t('copyB')}</button></div>`;
+el.innerHTML=`<b>${t('payT2')}</b>`+row('₿ BTC',P.btc)+row('₮ USDT-TRC20',P.usdt)+row('🏦 '+P.name+' TRY',P.try)+row('🏦 '+P.name+' USD',P.usd);}
+function loadAds(){const A=CONFIG.ads,el=document.getElementById('adFoot');if(!el)return;
+if(A.client){el.innerHTML='<ins class="adsbygoogle" style="display:block" data-ad-client="'+A.client+'" data-ad-slot="'+(A.slot||'')+'" data-ad-format="auto"></ins>';
+if(!document.querySelector('script[src*="adsbygoogle"]')){const s=document.createElement('script');s.async=true;s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+A.client;s.crossOrigin='anonymous';document.head.appendChild(s);}try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}}
+else if(A.carbonServe){el.innerHTML='';const s=document.createElement('script');s.async=true;s.id='_carbonads_js';s.src='//cdn.carbonads.com/carbon.js?serve='+A.carbonServe+'&placement='+A.carbonPlacement;el.appendChild(s);}}
+async function dbInfo(){try{const j=await jget(CIRCL+'/dbInfo');const n=j.total_cves||j['total-cves'];if(n)document.getElementById('stNvd').textContent=Number(n).toLocaleString('en-US');}catch(e){}}
+setLang('en');loadAds();renderPay();renderStacks();updateStats();dbInfo();fetchRecent();setInterval(()=>fetchRecent(true),CONFIG.pollMin*60000);
+</script>
+</body>
+</html>
